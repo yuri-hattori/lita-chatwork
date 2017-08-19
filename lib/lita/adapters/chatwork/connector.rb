@@ -53,6 +53,14 @@ module Lita
                     source = Lita::Source.new(user: user, room: source_id)
                 end
                 message = Lita::Message.new(robot, m["body"], source)
+
+                # groupの場合は、toまたは返信でない限りメッセージを受け取らない
+                if r["type"] == "group"
+                  if !(message.body =~ /#{@robot.mention_name}/) && !(message.body =~ /\[(?:rp|返信) aid=#{@me["account_id"]} to=\d+-\d+\]/)
+                    next
+                  end
+                end
+
                 message.command! if source.private_message?
                 message.command! if message.body =~ /#{@robot.mention_name}/
                 message.command! if message.body =~ /\[(?:rp|返信) aid=#{@me["account_id"]} to=\d+-\d+\]/
