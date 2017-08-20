@@ -56,7 +56,7 @@ module Lita
 
                 # groupの場合は、toまたは返信でない限りメッセージを受け取らない
                 if r["type"] == "group"
-                  if !(message.body.include?(@robot.mention_name)) && !(message.body.include?(@me["account_id"].to_s))
+                  unless message.body.include?(@me["account_id"].to_s)
                     next
                   end
                 end
