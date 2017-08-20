@@ -40,7 +40,7 @@ module Lita
                 next if m["account"]["account_id"] == @me["account_id"]
                 # groupの場合は、toまたは返信でない限りメッセージを受け取らない
                 if r["type"] == "group"
-                  unless m.body.include?(@me["account_id"].to_s)
+                  unless m["body"].include?(@me["account_id"].to_s)
                     next
                   end
                 end
