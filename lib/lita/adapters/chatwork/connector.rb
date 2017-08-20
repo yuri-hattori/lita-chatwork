@@ -36,7 +36,15 @@ module Lita
               result = ChatWork::Message.get(room_id: r["room_id"])
               next if result.is_a?(ChatWork::APIError)
               result.each do |m|
+                # 自分の投稿だったら次へ
                 next if m["account"]["account_id"] == @me["account_id"]
+                # groupの場合は、toまたは返信でない限りメッセージを受け取らない
+                if r["type"] == "group"
+                  unless m.body.include?(@me["account_id"].to_s)
+                    next
+                  end
+                end
+
                 user = Lita::User.find_by_id(m["account"]["account_id"])
                 unless user
                   user = Lita::User.create(m["account"]["account_id"],
@@ -53,13 +61,6 @@ module Lita
                     source = Lita::Source.new(user: user, room: source_id)
                 end
                 message = Lita::Message.new(robot, m["body"], source)
-
-                # groupの場合は、toまたは返信でない限りメッセージを受け取らない
-                if r["type"] == "group"
-                  unless message.body.include?(@me["account_id"].to_s)
-                    next
-                  end
-                end
 
                 message.command! if source.private_message?
                 message.command! if message.body =~ /#{@robot.mention_name}/
